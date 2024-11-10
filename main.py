@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
@@ -78,6 +78,73 @@ def get_fibonacci_sequence(number):
     except ValueError as e:
         return str(e), 400
 
+
+@app.route("/B2G")
+def greeting():
+    name = request.args.get("name", "Guest")
+    return f"Hallo, {name}!"
+
+def output(function,name):
+    print(function(name))
+
+
+#ab hier Code B2F
+def use_operation(funktion, zahl):
+    return funktion(zahl)
+
+
+def double(x):
+    return x * 2
+
+@app.route('/B2F', methods=['GET'])
+def verdoppeln_route():
+    number = int(request.args.get('zahl', 1))
+    result = use_operation(double, number)
+    return jsonify({"ergebnis": result})
+
+#ab hier Code B2E
+def outer_function(x):
+    def inner_function(y):
+        return x*y
+    return inner_function
+
+closure = outer_function(10)
+
+@app.route("/B2E/<int:y>")
+def get_value(y):
+    result = closure(y)
+    return jsonify({"Resultat":result})
+
+@app.route('/B3G', methods=['GET'])
+def convert_to_uppercase():
+    text = request.args.get("text", "")
+    convert_lambda = lambda x: x.upper()
+    result = convert_lambda(text)
+    return jsonify({"original_text": text, "uppercase_text": result})
+
+
+@app.route('/B3F', methods=['GET'])
+def add_and_multiply():
+    num1 = float(request.args.get("num1", 0))
+    num2 = float(request.args.get("num2", 0))
+    add_and_multiply_lambda = lambda x, y: (x + y) * y
+    result = add_and_multiply_lambda(num1, num2)
+
+    return jsonify({"result": result})
+
+
+@app.route('/B3E', methods=['GET'])
+def sort_people():
+    people = [
+        {"name": "Alice", "age": 30},
+        {"name": "Bob", "age": 25},
+        {"name": "Charlie", "age": 35},
+        {"name": "Diana", "age": 28}
+    ]
+
+    reverse = request.args.get("reverse", "false").lower() == "true"
+    people_sorted = sorted(people, key=lambda x: x["age"], reverse=reverse)
+    return jsonify({"sorted_people": people_sorted})
 
 if __name__ == '__main__':
     app.run(debug=True)
